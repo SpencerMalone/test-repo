@@ -1,0 +1,14 @@
+filename=$(mktemp XXXXXXXXXX)
+git checkout -b $filename
+git add $filename
+git commit -m "Adding test file $filename"
+git push origin $filename
+PR=$(curl -X POST "https://api.github.com/repos/SpencerMalone/test-repo/pulls?access_token=$1" -d "{
+  \"title\": \"Amazing new feature\",
+  \"head\": \"$filename\",
+  \"base\": \"master\"
+}")
+echo $PR
+PRID=$(echo $PR | jq '.number')
+echo $PRID
+echo $(curl -X GET "https://git.rsglab.com/api/v3/repos/test/test-repo/contents/Jenkinsfile?access_token=$1&ref=refs/pull/$PRID/merge")
